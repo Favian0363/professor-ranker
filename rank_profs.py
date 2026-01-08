@@ -15,31 +15,34 @@ def get_professors():
 
     print(f"Fetching sections for ({course_code})...")
 
-    payload = {
-        'v1' : course_code,
-        'term' : '3-2025',
-        'a' : 's',
-        'cmd1' : 'Search'
-    }
+    try:
+        payload = {
+            'v1' : course_code, 
+            'term' : '3-2025', # 3 = spring semester
+            'a' : 's', # hidden html input thing
+            'cmd1' : 'Search'
+        }
 
-    response = requests.get(uprm_base_url, params=payload)
-    raw_html = response.text
+        response = requests.get(uprm_base_url, params=payload)
+        raw_html = response.text
 
-    soup = BeautifulSoup(raw_html, 'html.parser')
+        soup = BeautifulSoup(raw_html, 'html.parser')
 
-    rows = soup.find_all('tr')
+        rows = soup.find_all('tr') # find rows in table
 
-    profs = []
+        profs = []
 
-    for row in rows:
-        cols = row.find_all('td')
-        if len(cols) > 5:
-            profs.append(cols[5].text)
+        for row in rows:
+            cols = row.find_all('td') # find columns
+            if len(cols) > 5: # skip extrainfo column in html
+                profs.append(cols[5].text) # cols[5] == professors
 
-    return ['N/A' if len(prof)==0 else prof for prof in profs]
+        return ['N/A' if len(prof)==0 else prof for prof in profs] # handles sections without professors as 'n/a'
+    except Exception as e:
+        print(f"Error fetching professors: {e}")
 
 def get_professor_grade(professor : str):
-    formatted_prof = professor.split()
+    formatted_prof = professor.split() # split for handling 
 
     if len(formatted_prof) > 2:
         if len(formatted_prof[1]) == 2: # Handle initial (Victor A. Ocasio Gonzalez -> Victor Ocasio)
@@ -49,15 +52,19 @@ def get_professor_grade(professor : str):
     else:
         formatted_prof = formatted_prof[0] + ' ' + formatted_prof[1]
 
-    payload = { 'search' : formatted_prof}
+    try:
+        payload = { 'search' : formatted_prof}
 
-    response = requests.get(notaso_base_url, params=payload)
-    info = response.json()
+        response = requests.get(notaso_base_url, params=payload)
+        info = response.json()
 
-    if info['results']:
-        if "Mayagüez" in info['results'][0]['university']:
-            return round(info['results'][0]['score'], 2)
-    return -1
+        if info['results']:
+            if "Mayagüez" in info['results'][0]['university']:
+                return round(info['results'][0]['score'], 2)
+            
+    except Exception as e:
+        print(f"Error fetching {professor}'s data: {e}")
+    return -1 # grade not found
 
 if __name__ == '__main__':
     professors = get_professors()

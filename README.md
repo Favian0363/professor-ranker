@@ -5,4 +5,5 @@ Tool that cross-references the UPRM course schedule with Notaso.com to rank avai
 ## Features
 - Gets live course sections from the UPRM Oferta de cursos site.
 - Fetches professor scores from the Notaso API.
-- WIP ->  accent handling (matching "Quinones" to "Quiñones").
+- WIP -> accent handling (matching "Quinones" to "Quiñones").
+- WIP -> implemente asyncio for speed up when fetching from notaso API 
