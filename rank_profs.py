@@ -78,4 +78,5 @@ if __name__ == '__main__':
         else:
             grades[prof] = get_professor_grade(prof)
     sorted_grades = dict(sorted(grades.items(), key=lambda x: x[1], reverse=True))
-    print(sorted_grades)
+    for name, grade in sorted_grades.items():
+        print(f"Professor: {name} - Grade: {grade}")
